@@ -156,6 +156,7 @@ public class TransferForString implements Transfer<String> {
                     result.append("\t" + name);
                     resove(methodAnnotation.getValue());
                 }
+                result.append(nextLineChar);
                 List<String> modifier = method.getMethodModifier();
                 for (String s : modifier) {
                     result.append("\t");

@@ -1,7 +1,4 @@
-package cn.mingyue.code.entity;
-
-import cn.mingyue.code.Controller;
-import cn.mingyue.code.Service;
+package cn.mingyue.code;
 
 import java.awt.*;
 
@@ -10,10 +7,10 @@ import java.awt.*;
  * @author: 千里明月
  * @date: 2019/4/25 9:57
  */
-@Service(value = "test")
+@Service(value = "TestEnum")
 @Controller
 public class TestEntity {
-    private String testField = "test";
+    private String testField = "TestEnum";
 
     private String test(Image image) {
         System.out.println(image);

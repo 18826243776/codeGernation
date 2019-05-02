@@ -9,7 +9,7 @@ package cn.mingyue.code;
 import java.lang.annotation.*;
 
 
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE,ElementType.METHOD})
 @Inherited
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,4 +17,8 @@ public @interface Controller {
     String value() default "";
 
     String param() default "";
+
+    int parasm() default 1;
+
+
 }

@@ -40,7 +40,7 @@ public class App {
                 addField(new EntityField(Arrays.asList("public"),UnsafeCrudService.class,Arrays.asList(new AnnotationWrapper(Autowired.class, new HashMap<String ,Object>(4){{
                     put("required",true);
                 }})))).
-                addMethod(new EntityMethod(String.class,"test")).
+                addMethod(new EntityMethod(String.class,"TestEnum")).
                 addMethod(new EntityMethod(Arrays.asList("public"),void.class,"testVoid",Arrays.asList(String.class,Integer.class),Arrays.asList(new AnnotationWrapper(ApiImplicitParams.class))))
         ;
 

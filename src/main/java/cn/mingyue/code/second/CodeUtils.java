@@ -1,4 +1,4 @@
-package cn.mingyue.code;
+package cn.mingyue.code.second;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class ClassUtils {
+public class CodeUtils {
 
 //	public static void main(String[] args) {
 //		String packageName = ""; //填入完整包名，如com.org.String
@@ -23,6 +23,19 @@ public class ClassUtils {
 //		}
 //	}
 
+    /**
+     * 判断对象是否基本类型和其封装类型
+     *
+     * @param obj
+     * @return
+     */
+    public static boolean isPrimitive(Object obj) {
+        try {
+            return ((Class<?>) obj.getClass().getField("TYPE").get(null)).isPrimitive();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     /**
      * 获取某包下所有类
@@ -158,5 +171,44 @@ public class ClassUtils {
         return classNames;
     }
 
+
+    /**
+     * S
+     * 首字母转小写
+     *
+     * @param str
+     * @return
+     */
+    public static String firstCharToLower(String str) {
+        String substring = str.substring(0, 1);
+
+        String newstr = substring.toLowerCase() + str.substring(1, str.length());
+        return newstr;
+    }
+
+    /**
+     * S
+     * 首字母转大写
+     *
+     * @param str
+     * @return
+     */
+    public static String firstCharToUpper(String str) {
+        String substring = str.substring(0, 1);
+
+        String newstr = substring.toUpperCase() + str.substring(1, str.length());
+        return newstr;
+    }
+
+    /**
+     * 简化字段名
+     *
+     * @param str
+     * @return
+     */
+    public static String simplyFieldName(String str) {
+        String substring = str.substring(str.lastIndexOf(".") + 1, str.length());
+        return substring;
+    }
 
 }
