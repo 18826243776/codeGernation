@@ -12,10 +12,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @version 1.0
@@ -46,8 +43,8 @@ public class App {
                 field(new EntityField(Arrays.asList("public"), UnsafeCrudService.class, Arrays.asList(new AnnotationWrapper(Autowired.class, new HashMap<String, Object>(4) {{
                     put("required", true);
                 }})))).
-                method(new EntityMethod(String.class, "TestEnum")).
-                method(new EntityMethod(Arrays.asList("public"), void.class, "testVoid", Arrays.asList(String.class, Integer.class), Arrays.asList(new AnnotationWrapper(Controller.class))))
+                method(new EntityMethod(String.class, "TestEnum"))
+//                method(new EntityMethod(Arrays.asList("public"), void.class, "testVoid", Arrays.asList(String.class, Integer.class), Arrays.asList(new AnnotationWrapper(Controller.class))))
         ;
 
         String result = new TransferToString().handle(info);
@@ -57,6 +54,7 @@ public class App {
     @Test
     public void test() {
         EntityInfo entity = TemplateFactory.getSimpleEntity("cn.mingyue.code.second", "TestApi");
+
         AnnotationWrapper annotation1 = new AnnotationWrapper(Controller.class);
         AnnotationWrapper annotation2 = new AnnotationWrapper(Api.class, new HashMap<String, Object>(2) {{
             put("tags", "栏目管理");
@@ -79,17 +77,21 @@ public class App {
         AnnotationWrapper methodAnnotation2 = new AnnotationWrapper(ApiImplicitParam.class, new HashMap<String, Object>(2) {{
             put("value", "des");
             put("required", true);
-            put("paramType","query");
+            put("paramType", "query");
         }});
+        AnnotationWrapper annotationWrapper3 = new AnnotationWrapper(RequestMapping.class, new HashMap<String, Object>(2) {{
+            put("value", "/test");
+        }});
+
         AnnotationWrapper methodAnnotations = new AnnotationWrapper(ApiImplicitParams.class, new HashMap<String, Object>(4) {{
             put("value", Arrays.asList(methodAnnotation1, methodAnnotation2));
         }});
 
-        addMethod.setMethodAnnotations(Arrays.asList(methodAnnotations));
+        addMethod.setMethodAnnotations(Arrays.asList(methodAnnotations,annotationWrapper3));
 
         entity.method(addMethod);
 
-        TransferToString transferToString = new TransferToString();
+        TransferHandler transferToString = new TransferToString();
         System.out.println(transferToString.handle(entity));
         String output = new OutputToFile().output(entity);
     }
@@ -108,14 +110,14 @@ public class App {
     }
 
 
-    private void t(Object object){
+    private void t(Object object) {
         System.out.println(object instanceof int[]);
     }
 
     @Test
-    public void test2(){
-        Object b= new EntityInfo();
-        System.out.println( isPrimitive(b));
+    public void test2() {
+        Object b = new EntityInfo();
+        System.out.println(isPrimitive(b));
     }
 
     private boolean isPrimitive(Object obj) {
@@ -125,4 +127,15 @@ public class App {
             return false;
         }
     }
+
+    @Test
+    public void test5() {
+//        Object[] te=(Object[])new String{""};
+//        System.out.println(te.length);
+        int[] ints = new int[3];
+    }
+    private void t9(Object object){
+    }
+
+
 }

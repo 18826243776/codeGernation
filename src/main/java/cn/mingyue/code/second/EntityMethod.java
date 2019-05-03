@@ -1,7 +1,6 @@
 package cn.mingyue.code.second;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @version 1.0
@@ -12,19 +11,19 @@ public class EntityMethod {
     private List<String> methodModifier=new ArrayList<>(4);
     private Class methodType;
     private String methodName;
-    private List<Class> paramTypes;
+    private Map<String, Class> paramTypes;
     private List<AnnotationWrapper> methodAnnotations = new ArrayList<>(4);
 
     public EntityMethod(Class methodType) {
         this(new ArrayList<>(4), methodType, CodeUtils.firstCharToLower(methodType.getSimpleName()),
-                new ArrayList<>(4), new ArrayList<>(4));
+                new HashMap<>(4), new ArrayList<>(4));
     }
     public EntityMethod(Class methodType, String methodName) {
         this(new ArrayList<>(4), methodType, methodName,
-                new ArrayList<>(4), new ArrayList<>(4));
+               new LinkedHashMap<>(4), new ArrayList<>(4));
     }
     public EntityMethod(List<String> methodModifier, Class methodType, String methodName,
-                        List<Class> paramTypes, List<AnnotationWrapper> methodAnnotations) {
+                        Map<String, Class> paramTypes, List<AnnotationWrapper> methodAnnotations) {
         this.methodModifier = methodModifier;
         this.methodType = methodType;
         this.methodName = methodName;
@@ -32,11 +31,11 @@ public class EntityMethod {
         this.methodAnnotations = methodAnnotations;
     }
 
-    public List<Class> getParamTypes() {
+    public Map<String, Class> getParamTypes() {
         return paramTypes;
     }
 
-    public void setParamTypes(List<Class> paramTypes) {
+    public void setParamTypes(Map<String, Class> paramTypes) {
         this.paramTypes = paramTypes;
     }
 

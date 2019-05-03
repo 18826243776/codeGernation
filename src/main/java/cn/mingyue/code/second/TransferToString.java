@@ -1,11 +1,6 @@
 package cn.mingyue.code.second;
 
-import cn.mingyue.code.RegexUtil;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @version 1.0
@@ -17,9 +12,17 @@ public class TransferToString implements TransferHandler<String> {
     private EntityInfo info;
     private StringBuilder result = new StringBuilder(1000);
     private CodeBuilder<String> builder = null;
+    //开启自动导入包模式
+    private boolean autoImport = true;
 
-    public void setBuilder(CodeBuilder<String> builder) {
+    public TransferToString setAutoImport(boolean autoImport) {
+        this.autoImport = autoImport;
+        return this;
+    }
+
+    public TransferToString setBuilder(CodeBuilder<String> builder) {
         this.builder = builder;
+        return this;
     }
 
     @Override
@@ -52,10 +55,46 @@ public class TransferToString implements TransferHandler<String> {
 
         @Override
         public CodeBuilder imports() {
-            List<String> imports = info.getClassImports();
-            for (String anImport : imports) {
-                anImport = FormConstant.importPrefix + anImport;
-                result.append(anImport + FormConstant.lineEndSuffix + FormConstant.nextLineChar);
+            List<Class> imports = info.getClassImports();
+            if (autoImport) {
+                List<EntityMethod> methods = info.getMethods();
+                List<EntityField> fields = info.getFields();
+                List<AnnotationWrapper> classAnnotations = info.getClassAnnotations();
+                for (EntityMethod method : methods) {
+                    Class methodType = method.getMethodType();
+                    imports.add(methodType);
+                    Collection<Class> paramTypes =method.getParamTypes().values();
+                    imports.addAll(paramTypes);
+                    List<AnnotationWrapper> methodAnnotations = method.getMethodAnnotations();
+                    for (AnnotationWrapper methodAnnotation : methodAnnotations) {
+                        Class annotation = methodAnnotation.getAnnotation();
+                        imports.add(annotation);
+                    }
+                }
+                for (EntityField field : fields) {
+                    Class fieldType = field.getFieldType();
+                    imports.add(fieldType);
+                    List<AnnotationWrapper> fieldAnnotations = field.getFieldAnnotations();
+                    for (AnnotationWrapper fieldAnnotation : fieldAnnotations) {
+                        imports.add(fieldAnnotation.getAnnotation());
+                    }
+                }
+                for (AnnotationWrapper classAnnotation : classAnnotations) {
+                    imports.add(classAnnotation.getAnnotation());
+                }
+            }
+
+            Iterator<Class> iterator = imports.iterator();
+            while (iterator.hasNext()) {
+                Class next = iterator.next();
+                if (next == void.class || next.getClass().isPrimitive() || next == String.class) {
+                    iterator.remove();
+                }
+            }
+
+            for (Class anImport : imports) {
+                String importName = FormConstant.importPrefix + anImport.getName();
+                result.append(importName + FormConstant.lineEndSuffix + FormConstant.nextLineChar);
             }
             return this;
         }
@@ -63,145 +102,116 @@ public class TransferToString implements TransferHandler<String> {
         @Override
         public CodeBuilder annotations() {
             for (AnnotationWrapper annotation : info.getClassAnnotations()) {
-                resoveAnnotation(annotation);
+                resolveAnnotation(annotation);
             }
             return this;
         }
 
-        private void resoveAnnotation(AnnotationWrapper annotation) {
+        //处理注解AnnotationWrapper
+        private void resolveAnnotation(AnnotationWrapper annotation) {
             String name = annotation.getName();
             result.append(name);
             Map<String, Object> annotationValue = annotation.getValue();
-            resove(annotationValue);
+            if (annotationValue == null || annotationValue.size() == 0) {
+                result.append(FormConstant.nextLineChar);
+                return;
+            }
+            result.append(FormConstant.leftBracket);
+
+            resolveAnnotationValue(annotationValue);
+
+            result.append(FormConstant.rightBracket);
             result.append(FormConstant.nextLineChar);
         }
 
-        private void resove(Map<String, Object> annotationValue) {
-
-            if (annotationValue.size() > 0) {
-                result.append(FormConstant.leftBracket);
-            }
+        //处理注解AnnotationWrapper的map
+        private void resolveAnnotationValue(Map<String, Object> annotationValue) {
             int count = 1;
             for (Map.Entry<String, Object> entry : annotationValue.entrySet()) {
                 String key = entry.getKey();
-                Object value = entry.getValue();
                 result.append(key + FormConstant.equalChar);
-
-                if (value instanceof String) {
-                    result.append(FormConstant.quotation + value + FormConstant.quotation);
-                } else if (value instanceof Class) {
-                    //如果是注解类
-                    if (((Class) value).isAnnotation()) {
-                        resoveAnnotation(new AnnotationWrapper((Class) value));
-                    } else {
-                        result.append(((Class) value).getSimpleName() + FormConstant.classSuffix + FormConstant.blankChar);
-                    }
-                } else if (value.getClass().isEnum()) {
-                    //todo
-                } else if (CodeUtils.isPrimitive(value)) {
-                    result.append(value + FormConstant.blankChar);
-                } else if (value.getClass().isArray()) {
-                    //如果value是数组
-
-                    //string数组
-                    if (value instanceof String[]) {
-                        String[] valuestrings = (String[]) value;
-                        if (valuestrings == null || valuestrings.length == 0) {
-                            break;
-                        }
-                        for (int i = 0; i < valuestrings.length; i++) {
-                            if (i == 0) {
-                                result.append(FormConstant.leftCurly);
-                            }
-
-                            result.append(FormConstant.quotation + valuestrings[i] + FormConstant.quotation);
-                            if (i < valuestrings.length - 1) {
-                                result.append(FormConstant.commaChar);
-                            }
-
-                            if (i == valuestrings.length - 1) {
-                                result.append(FormConstant.rightCurly);
-                            }
-                        }
-                    }
-                    //class数组
-                    else if (value instanceof Class[]) {
-                        Class[] value1 = (Class[]) value;
-                        if (value1 == null || value1.length == 0) {
-                            break;
-                        }
-                        for (int i = 0; i < value1.length; i++) {
-                            if (i == 0) {
-                                result.append(FormConstant.leftCurly);
-                            }
-                            if (value1[i].isAnnotation()) {
-                                resoveAnnotation(new AnnotationWrapper(value1[i]));
-                            } else {
-                                result.append(value1[i].getSimpleName() + FormConstant.classSuffix);
-                            }
-
-                            if (i < value1.length - 1) {
-                                result.append(FormConstant.commaChar);
-                            }
-
-                            if (i == value1.length - 1) {
-                                result.append(FormConstant.rightCurly);
-                            }
-                        }
-                    }
-                    //其他object数组  不考虑enum的情况
-                    else {
-                        Object[] valueObjects = (Object[]) value;
-                        if (valueObjects == null || valueObjects.length == 0) {
-                            break;
-                        }
-                        for (int i = 0; i < valueObjects.length; i++) {
-                            if (i == 0) {
-                                result.append(FormConstant.leftCurly);
-                            }
-
-                            result.append(valueObjects[i]);
-                            if (i < valueObjects.length - 1) {
-                                result.append(FormConstant.commaChar);
-                            }
-
-                            if (i == valueObjects.length - 1) {
-                                result.append(FormConstant.rightCurly);
-                            }
-                        }
-                    }
-
-
-                }
-                //集合的情况
-                else if (value instanceof Collection) {
-                    result.append(FormConstant.leftCurly);
-                    Collection list = (Collection) value;
-                    Iterator iterator = list.iterator();
-                    while (iterator.hasNext()) {
-                        Object next = iterator.next();
-                        if (next instanceof AnnotationWrapper) {
-                            resoveAnnotation((AnnotationWrapper) next);
-                        } else if (next instanceof Class) {
-                            String collectionName = ((Class) next).getSimpleName() + FormConstant.classSuffix;
-                            result.append(FormConstant.quotation + collectionName + FormConstant.quotation + (iterator.hasNext() ? FormConstant.commaChar : ""));
-                        } else if (next instanceof String) {
-                            result.append(FormConstant.quotation + next + FormConstant.quotation + (iterator.hasNext() ? FormConstant.commaChar : ""));
-                        } else {
-                            result.append(next + (iterator.hasNext() ? FormConstant.commaChar : ""));
-                        }
-                        result.append(iterator.hasNext() ? FormConstant.commaChar : "");
-                    }
-                    result.append(FormConstant.rightCurly);
-                }
-
-                if (count < annotationValue.size()) {
+                resolve(entry.getValue());
+                if (count > 0 && count < annotationValue.size()) {
                     result.append(FormConstant.commaChar);
                 }
                 count++;
             }
-            if (annotationValue.size() > 0) {
-                result.append(FormConstant.rightBracket);
+        }
+
+        private void resolve(Object value) {
+            if (value instanceof String) {
+                result.append(FormConstant.quotation + value + FormConstant.quotation);
+                return;
+            }
+            if (CodeUtils.isPrimitive(value)) {
+                result.append(value);
+                return;
+            }
+            if (value.getClass().isEnum()) {
+                //todo
+                return;
+            }
+            if (value instanceof Class) {
+                result.append(((Class) value).getSimpleName() + FormConstant.classSuffix + FormConstant.blankChar);
+                return;
+            }
+            if (value instanceof AnnotationWrapper) {
+                resolveAnnotation((AnnotationWrapper) value);
+                return;
+            }
+
+            //如果value是集合或数组   不考虑enum的情况
+            if (value instanceof Collection || (value.getClass().isArray() && !CodeUtils.isPrimitiveArray(value))) {
+                Collection list;
+                list = value instanceof Collection ? (Collection) value : Arrays.asList((Object[]) value);
+                Iterator<Object> iterator = list.iterator();
+                result.append(FormConstant.leftCurly);
+                while (iterator.hasNext()) {
+                    Object next = iterator.next();
+                    resolve(next);
+                    result.append(iterator.hasNext() ? FormConstant.commaChar : "");
+                }
+                result.append(FormConstant.rightCurly);
+                return;
+            }
+            if (CodeUtils.isPrimitiveArray(value)) {
+                resolveHelper(value);
+                return;
+            }
+        }
+
+        private void resolveHelper(Object value) {
+            boolean[] valueB = value instanceof boolean[] ? (boolean[]) value : new boolean[0];
+            for (boolean b : valueB) {
+                resolve(b);
+            }
+            byte[] valuebyte = value instanceof byte[] ? (byte[]) value : new byte[0];
+            for (byte b : valuebyte) {
+                resolve(b);
+            }
+            char[] valueC = value instanceof char[] ? (char[]) value : new char[0];
+            for (char b : valueC) {
+                resolve(b);
+            }
+            double[] valueD = value instanceof double[] ? (double[]) value : new double[0];
+            for (double b : valueD) {
+                resolve(b);
+            }
+            float[] valueF = value instanceof float[] ? (float[]) value : new float[0];
+            for (float b : valueF) {
+                resolve(b);
+            }
+            int[] valueI = value instanceof int[] ? (int[]) value : new int[0];
+            for (int b : valueI) {
+                resolve(b);
+            }
+            long[] valueL = value instanceof long[] ? (long[]) value : new long[0];
+            for (long b : valueL) {
+                resolve(b);
+            }
+            short[] valueS = value instanceof short[] ? (short[]) value : new short[0];
+            for (short b : valueS) {
+                resolve(b);
             }
         }
 
@@ -232,18 +242,13 @@ public class TransferToString implements TransferHandler<String> {
             List<EntityField> fields = info.getFields();
             for (EntityField field : fields) {
                 List<AnnotationWrapper> fieldAnnotations = field.getFieldAnnotations();
+                for (AnnotationWrapper fieldAnnotation : fieldAnnotations) {
+                    resolveAnnotation(fieldAnnotation);
+                }
                 List<String> fieldModifier = field.getFieldModifier();
                 Class fieldType = field.getFieldType();
                 String fieldName = field.getFieldName();
 
-                for (AnnotationWrapper fieldAnnotation : fieldAnnotations) {
-                    result.append(FormConstant.tabChar);
-                    String name = fieldAnnotation.getName();
-                    result.append(name);
-                    Map<String, Object> annotationValue = fieldAnnotation.getValue();
-                    resove(annotationValue);
-                    result.append(FormConstant.nextLineChar);
-                }
 
                 for (String s : fieldModifier) {
                     result.append(FormConstant.tabChar);
@@ -261,9 +266,7 @@ public class TransferToString implements TransferHandler<String> {
             for (EntityMethod method : methods) {
                 List<AnnotationWrapper> methodAnnotations = method.getMethodAnnotations();
                 for (AnnotationWrapper methodAnnotation : methodAnnotations) {
-                    String name = methodAnnotation.getName();
-                    result.append(FormConstant.tabChar + name);
-                    resove(methodAnnotation.getValue());
+                    resolveAnnotation(methodAnnotation);
                 }
                 result.append(FormConstant.nextLineChar);
                 List<String> modifier = method.getMethodModifier();
@@ -278,19 +281,20 @@ public class TransferToString implements TransferHandler<String> {
 
                 result.append(FormConstant.leftBracket);
 
-                List<Class> paramTypes = method.getParamTypes();
+                Map<String, Class> paramTypes = method.getParamTypes();
                 int count = 1;
-                for (Class paramType : paramTypes) {
-                    String name = paramType.getSimpleName();
-                    String lowerName = RegexUtil.firstCharToLower(name);
-                    result.append(name + FormConstant.blankChar + lowerName);
+                for (Map.Entry<String, Class> entry : paramTypes.entrySet()) {
+                    String paramName = entry.getKey();
+                    Class paramType = entry.getValue();
+                    String paramTypeName = paramType.getSimpleName();
+                    result.append(paramTypeName + FormConstant.blankChar + paramName);
                     if (count < paramTypes.size()) {
                         result.append(FormConstant.commaChar);
                     }
                     count++;
                 }
 
-                result.append(" ) ");
+                result.append(FormConstant.rightBracket);
 
                 result.append(FormConstant.beginChar);
 

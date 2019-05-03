@@ -38,6 +38,31 @@ public class CodeUtils {
     }
 
     /**
+     * @param array
+     * @return
+     */
+    public static boolean isPrimitiveArray(Object array) {
+        if (array instanceof boolean[]) {
+            return true;
+        } else if (array instanceof byte[]) {
+            return true;
+        } else if (array instanceof char[]) {
+            return true;
+        } else if (array instanceof double[]) {
+            return true;
+        } else if (array instanceof float[]) {
+            return true;
+        } else if (array instanceof int[]) {
+            return true;
+        } else if (array instanceof long[]) {
+            return true;
+        } else if (array instanceof short[]) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 获取某包下所有类
      *
      * @param packageName 包名

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class EntityInfo implements Serializable {
     private String classPackage;
-    private List<String> classImports = new ArrayList<>(16);
+    private List<Class> classImports = new ArrayList<>(16);
     private List<AnnotationWrapper> classAnnotations = new ArrayList<>(8);
 
     private List<String> classModifier = new ArrayList<>(4);
@@ -33,13 +33,12 @@ public class EntityInfo implements Serializable {
         return this;
     }
 
-    public List<String> getClassImports() {
+    public List<Class> getClassImports() {
         return classImports;
     }
 
-    public EntityInfo setClassImports(List<String> classImports) {
-        Assert.notNull(classImports);
-        this.classImports = classImports;
+    public EntityInfo setClassImports(List<Class> classImports) {
+        this.classImports = classImports == null ? this.classImports : classImports;
         return this;
     }
 
@@ -48,8 +47,7 @@ public class EntityInfo implements Serializable {
     }
 
     public EntityInfo setClassAnnotations(List<AnnotationWrapper> classAnnotations) {
-        Assert.notNull(classAnnotations);
-        this.classAnnotations = classAnnotations;
+        this.classAnnotations = classAnnotations == null ? this.classAnnotations : classAnnotations;
         return this;
     }
 
@@ -58,8 +56,7 @@ public class EntityInfo implements Serializable {
     }
 
     public EntityInfo setClassModifier(List<String> classModifier) {
-        Assert.notNull(classModifier);
-        this.classModifier = classModifier;
+        this.classModifier = classModifier == null ? this.classModifier : classModifier;
         return this;
     }
 
@@ -68,7 +65,6 @@ public class EntityInfo implements Serializable {
     }
 
     public EntityInfo setClassType(String classType) {
-        Assert.notNull(classType);
         this.classType = classType;
         return this;
     }
@@ -78,7 +74,6 @@ public class EntityInfo implements Serializable {
     }
 
     public EntityInfo setClassName(String className) {
-        Assert.notNull(className);
         this.className = className;
         return this;
     }
@@ -88,8 +83,7 @@ public class EntityInfo implements Serializable {
     }
 
     public EntityInfo setFields(List<EntityField> fields) {
-        Assert.notNull(fields);
-        this.fields = fields;
+        this.fields = fields == null ? this.fields : fields;
         return this;
     }
 
@@ -98,17 +92,14 @@ public class EntityInfo implements Serializable {
     }
 
     public EntityInfo setMethods(List<EntityMethod> methods) {
-        Assert.notNull(methods);
-        this.methods = methods;
+        this.methods = methods == null ? this.methods : methods;
         return this;
     }
 
-
     public EntityInfo imports(Class<?>... clazz) {
-        List<String> classImports = getClassImports();
+        List<Class> classImports = getClassImports();
         for (Class<?> aClass : clazz) {
-            String name = aClass.getName();
-            classImports.add(name);
+            classImports.add(aClass);
         }
         return this;
     }
