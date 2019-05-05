@@ -3,11 +3,6 @@ package cn.mingyue.code;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @version 1.0
- * @author: 千里明月
- * @date: 2019/4/25 9:08
- */
 public class EntityField {
     private List<String> fieldModifier;
     private String fieldName;
@@ -15,15 +10,19 @@ public class EntityField {
     private List<AnnotationWrapper> fieldAnnotations;
 
     public EntityField(Class fieldType) {
-        this(new ArrayList<>(4), RegexUtil.simplyFieldName(fieldType.getName()), fieldType,new ArrayList<>(4));
+        this(new ArrayList<>(4), CodeUtils.simplyFieldName(fieldType.getName()), fieldType, new ArrayList<>(4));
+    }
+
+    public EntityField(Class fieldType, List<AnnotationWrapper> fieldAnnotations) {
+        this(new ArrayList<>(4), CodeUtils.simplyFieldName(fieldType.getName()), fieldType, fieldAnnotations);
     }
 
     public EntityField(List<String> fieldModifier, Class fieldType) {
-        this(fieldModifier, RegexUtil.simplyFieldName(fieldType.getName()), fieldType, new ArrayList<>(4));
+        this(fieldModifier, CodeUtils.simplyFieldName(fieldType.getName()), fieldType, new ArrayList<>(4));
     }
 
-    public EntityField(List<String> fieldModifier, Class fieldType,List<AnnotationWrapper> fieldAnnotations) {
-        this(fieldModifier, RegexUtil.simplyFieldName(fieldType.getName()), fieldType, fieldAnnotations);
+    public EntityField(List<String> fieldModifier, Class fieldType, List<AnnotationWrapper> fieldAnnotations) {
+        this(fieldModifier, CodeUtils.simplyFieldName(fieldType.getName()), fieldType, fieldAnnotations);
     }
 
     public EntityField(List<String> fieldModifier, String fieldName, Class fieldType, List<AnnotationWrapper> fieldAnnotations) {

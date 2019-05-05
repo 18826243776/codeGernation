@@ -1,4 +1,4 @@
-package cn.mingyue.code.second;
+package cn.mingyue.code;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

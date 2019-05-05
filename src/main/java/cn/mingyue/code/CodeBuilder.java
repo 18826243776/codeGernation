@@ -1,4 +1,4 @@
-package cn.mingyue.code.second;
+package cn.mingyue.code;
 
 /**
  * @version 1.0

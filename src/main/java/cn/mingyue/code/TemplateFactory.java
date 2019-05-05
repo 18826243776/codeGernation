@@ -1,11 +1,11 @@
-package cn.mingyue.code.second;
+package cn.mingyue.code;
 
 /**
  * @version 1.0
  * @author: 千里明月
  * @date: 2019/5/2 13:48
  */
-public class TemplateFactory {
+public abstract class TemplateFactory {
 
     public static final String PUBLIC = "public";
     public static final String CLASS = "class";
@@ -19,9 +19,4 @@ public class TemplateFactory {
         return entity;
     }
 
-    public static void main(String[] args) {
-        TransferToString transferToString = new TransferToString();
-        String test = transferToString.handle(getSimpleEntity("com.mingyue.code.second", "Test"));
-        System.out.println(test);
-    }
 }

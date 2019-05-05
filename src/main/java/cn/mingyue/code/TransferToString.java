@@ -1,4 +1,4 @@
-package cn.mingyue.code.second;
+package cn.mingyue.code;
 
 import java.util.*;
 
@@ -29,14 +29,6 @@ public class TransferToString implements TransferHandler<String> {
     public String handle(EntityInfo info) {
         this.info = info;
         builder = builder == null ? builder() : builder;
-        builder = builder.pkg().
-                imports().
-                annotations().
-                modifiers().
-                classType().
-                className().
-                fields().
-                methods();
         return builder.build();
     }
 
@@ -50,12 +42,12 @@ public class TransferToString implements TransferHandler<String> {
         public CodeBuilder pkg() {
             String classPackage = info.getClassPackage();
             result.append(FormConstant.packagePrefix + classPackage + FormConstant.lineEndSuffix + FormConstant.nextLineChar);
-            return this;
+            return imports();
         }
 
         @Override
         public CodeBuilder imports() {
-            List<Class> imports = info.getClassImports();
+            Set<Class> imports = info.getClassImports();
             if (autoImport) {
                 List<EntityMethod> methods = info.getMethods();
                 List<EntityField> fields = info.getFields();
@@ -96,7 +88,7 @@ public class TransferToString implements TransferHandler<String> {
                 String importName = FormConstant.importPrefix + anImport.getName();
                 result.append(importName + FormConstant.lineEndSuffix + FormConstant.nextLineChar);
             }
-            return this;
+            return annotations();
         }
 
         @Override
@@ -104,7 +96,7 @@ public class TransferToString implements TransferHandler<String> {
             for (AnnotationWrapper annotation : info.getClassAnnotations()) {
                 resolveAnnotation(annotation);
             }
-            return this;
+            return modifiers();
         }
 
         //处理注解AnnotationWrapper
@@ -221,20 +213,20 @@ public class TransferToString implements TransferHandler<String> {
             for (String s : classModifier) {
                 result.append(s + FormConstant.blankChar);
             }
-            return this;
+            return classType();
         }
 
         @Override
         public CodeBuilder classType() {
             result.append(info.getClassType() + FormConstant.blankChar);
-            return this;
+            return className();
         }
 
         @Override
         public CodeBuilder className() {
             result.append(info.getClassName() + FormConstant.blankChar);
             result.append(FormConstant.beginChar);
-            return this;
+            return fields();
         }
 
         @Override
@@ -257,7 +249,7 @@ public class TransferToString implements TransferHandler<String> {
                 result.append(fieldType.getSimpleName() + FormConstant.blankChar);
                 result.append(fieldName + FormConstant.lineEndSuffix + FormConstant.nextLineChar);
             }
-            return this;
+            return methods();
         }
 
         @Override
@@ -308,6 +300,7 @@ public class TransferToString implements TransferHandler<String> {
 
         @Override
         public String build() {
+            pkg();
             result.append(FormConstant.endChar);
             return result.toString();
         }

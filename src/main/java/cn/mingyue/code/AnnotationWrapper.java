@@ -27,10 +27,6 @@ public class AnnotationWrapper {
         this.name = "@" + name;
     }
 
-    public static void main(String[] args) {
-        new AnnotationWrapper(Service.class);
-    }
-
     public String getName() {
         return name;
     }

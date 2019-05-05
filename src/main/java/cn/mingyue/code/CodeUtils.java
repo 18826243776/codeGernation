@@ -1,4 +1,4 @@
-package cn.mingyue.code.second;
+package cn.mingyue.code;
 
 import java.io.File;
 import java.io.IOException;

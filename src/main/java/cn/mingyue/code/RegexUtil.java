@@ -44,39 +44,4 @@ public class RegexUtil {
         return imports;
     }
 
-            /**S
-         * 首字母转小写
-         *
-         * @param str
-         * @return
-         */
-    public static String firstCharToLower(String str) {
-        String substring = str.substring(0, 1);
-
-        String newstr = substring.toLowerCase() + str.substring(1, str.length()) ;
-        return newstr;
-    }
-    /**S
-     * 首字母转大写
-     *
-     * @param str
-     * @return
-     */
-    public static String firstCharToUpper(String str) {
-        String substring = str.substring(0, 1);
-
-        String newstr = substring.toUpperCase() + str.substring(1, str.length()) ;
-        return newstr;
-    }
-
-    /**
-     * 简化字段名
-     *
-     * @param str
-     * @return
-     */
-    public static String simplyFieldName(String str) {
-        String substring = str.substring(str.lastIndexOf(".") + 1, str.length());
-        return substring;
-    }
 }

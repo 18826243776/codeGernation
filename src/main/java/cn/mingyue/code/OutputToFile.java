@@ -7,18 +7,25 @@ import java.io.IOException;
 /**
  * @version 1.0
  * @author: 千里明月
- * @date: 2019/4/26 13:38
+ * @date: 2019/4/30 16:23
+ * 转化成java文件
  */
-public class ToJava {
+public class OutputToFile implements Target<String> {
 
-    public static final String packageUrl = "D:/github/codegeneration/src/main/java/cn/mingyue/code";
+    public String packageUrl = "D:/github/codegeneration/src/main/java/cn/mingyue/code";
+    public static final String JAVA_FILE_SUFFIX = ".java";
 
-    public String toJava(EntityInfo info) {
-        TransferForString transfer = new TransferForString();
-        String result = transfer.transto(info);
+    public void setPackageUrl(String pkgUrl) {
+        packageUrl = pkgUrl;
+    }
+
+    @Override
+    public String output(EntityInfo info) {
+        TransferHandler<String> transfer = new TransferToString();
+        String result = transfer.handle(info);
         String className = info.getClassName();
 
-        File file = new File(packageUrl, className + ".java");
+        File file = new File(packageUrl, className + JAVA_FILE_SUFFIX);
         if (file.exists()) {
 //            return null;
         }
@@ -35,6 +42,5 @@ public class ToJava {
             e.printStackTrace();
         }
         return result;
-
     }
 }

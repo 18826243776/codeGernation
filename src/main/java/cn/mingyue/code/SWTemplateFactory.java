@@ -1,4 +1,4 @@
-package cn.mingyue.code.second;
+package cn.mingyue.code;
 
 import io.swagger.annotations.*;
 import org.junit.Test;
@@ -15,8 +15,10 @@ import java.util.*;
  */
 public class SWTemplateFactory extends TemplateFactory {
 
-    public static EntityInfo getSWController(String pkg, String name, Class originEntity) {
+    public static EntityInfo getSWController(String pkg, Class originEntity) {
+        String name = originEntity.getSimpleName() + "Controller";
         EntityInfo entity = getSimpleEntity(pkg, name);
+        entity.imports(ApiImplicitParam.class, ApiImplicitParams.class);
         AnnotationWrapper controller = new AnnotationWrapper(RestController.class);
         entity.annotation(controller);
 
@@ -33,7 +35,7 @@ public class SWTemplateFactory extends TemplateFactory {
         for (Field field : declaredFields) {
             field.setAccessible(true);
             String fieldName = field.getName();
-            paramTypes.put(fieldName,field.getType());
+            paramTypes.put(fieldName, field.getType());
 
             ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
             if (annotation == null) {
@@ -63,6 +65,6 @@ public class SWTemplateFactory extends TemplateFactory {
     public void test() {
 //        String testSwController = new TransferToString().handle(getSWController("cn.mingyue.code.second", "TestSwController", TestEntity.class));
 //        System.out.println(testSwController);
-        new OutputToFile().output(getSWController("cn.mingyue.code.second", "TestSwController", TestEntity.class));
+        new OutputToFile().output(getSWController("cn.mingyue.code", TestEntity.class));
     }
 }
